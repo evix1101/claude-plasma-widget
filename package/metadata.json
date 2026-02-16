@@ -1,0 +1,18 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "",
+                "Name": "Claude Code"
+            }
+        ],
+        "Category": "System Information",
+        "Description": "Displays Claude Code token usage as progress bars in the panel",
+        "Icon": "dialog-information",
+        "Id": "com.github.claude-code-usage",
+        "Name": "Claude Code Usage",
+        "Version": "1.0.0"
+    },
+    "X-Plasma-API-Minimum-Version": "6.0",
+    "KPackageStructure": "Plasma/Applet"
+}
