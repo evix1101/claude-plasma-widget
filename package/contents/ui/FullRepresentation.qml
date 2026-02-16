@@ -17,6 +17,10 @@ PlasmaExtras.Representation {
 
     implicitWidth: Kirigami.Units.gridUnit * 20
     implicitHeight: contentLayout.implicitHeight + Kirigami.Units.largeSpacing * 2
+    Layout.minimumWidth: Kirigami.Units.gridUnit * 18
+    Layout.minimumHeight: Kirigami.Units.gridUnit * 12
+    Layout.maximumWidth: Kirigami.Units.gridUnit * 30
+    Layout.maximumHeight: Kirigami.Units.gridUnit * 30
 
     header: PlasmaExtras.PlasmoidHeading {
         RowLayout {
