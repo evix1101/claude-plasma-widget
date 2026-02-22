@@ -13,9 +13,6 @@ KCM.SimpleKCM {
     property alias cfg_refreshInterval: refreshSpin.value
     property alias cfg_credentialsPath: credentialsField.text
 
-    // History data stored in config but not user-editable
-    property string cfg_usageHistory: ""
-
     Kirigami.FormLayout {
         anchors.left: parent.left
         anchors.right: parent.right

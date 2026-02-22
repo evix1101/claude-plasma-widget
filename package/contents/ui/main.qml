@@ -199,15 +199,43 @@ PlasmoidItem {
         }
     }
 
-    function loadHistory() {
-        try {
-            var raw = Plasmoid.configuration.usageHistory;
-            root.usageHistory = (raw && raw !== "") ? JSON.parse(raw) : [];
-        } catch (e) {
-            root.usageHistory = [];
+    // Data source for reading history file
+    Plasma5Support.DataSource {
+        id: historyReadSource
+        engine: "executable"
+        connectedSources: []
+
+        onNewData: function(source, data) {
+            historyReadSource.disconnectSource(source);
+            var stdout = data["stdout"] || "";
+            try {
+                var parsed = (stdout.trim() !== "") ? JSON.parse(stdout) : [];
+                root._applyLoadedHistory(parsed);
+            } catch (e) {
+                root._applyLoadedHistory([]);
+            }
         }
+    }
+
+    // Data source for writing history file (fire-and-forget)
+    Plasma5Support.DataSource {
+        id: historyWriteSource
+        engine: "executable"
+        connectedSources: []
+
+        onNewData: function(source, data) {
+            historyWriteSource.disconnectSource(source);
+        }
+    }
+
+    function loadHistory() {
+        var cmd = "timeout 5 cat \"$HOME\"'/.local/share/claude-code-usage/history.json' 2>/dev/null || echo '[]'";
+        historyReadSource.connectSource(cmd);
+    }
+
+    function _applyLoadedHistory(hist) {
+        root.usageHistory = hist;
         // Compute burn rate from recent history so it's available immediately
-        var hist = root.usageHistory;
         if (hist.length >= 2) {
             var last = hist[hist.length - 1];
             root._prevFiveHourUsage = last.fh;
@@ -234,7 +262,13 @@ PlasmoidItem {
     }
 
     function persistHistory() {
-        Plasmoid.configuration.usageHistory = JSON.stringify(root.usageHistory);
+        // JSON uses only double quotes, so single-quote wrapping is safe.
+        // Atomic write: write to .tmp then mv to prevent corruption.
+        var json = JSON.stringify(root.usageHistory);
+        var cmd = "mkdir -p \"$HOME\"'/.local/share/claude-code-usage' && " +
+                  "printf '%s' '" + json + "' > \"$HOME\"'/.local/share/claude-code-usage/history.json.tmp' && " +
+                  "mv \"$HOME\"'/.local/share/claude-code-usage/history.json.tmp' \"$HOME\"'/.local/share/claude-code-usage/history.json'";
+        historyWriteSource.connectSource(cmd);
     }
 
     function recordDataPoint() {
